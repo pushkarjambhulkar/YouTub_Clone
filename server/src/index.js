@@ -6,14 +6,14 @@ dotenv.config({
     path: '/env'  // if giving prob try "./.env"
 })
 
-console.log("gujghjg",process.env.CORS_ORIGIN)
+console.log(process.env.CORS_ORIGIN)
 
 
 connectToDB()
 .then(() => {
     app.listen(process.env.PORT || 8000, () => {
         console.log(`Server is listening on: ${process.env.PORT}`);
-        console.log("gujghjg",process.env.CORS_ORIGIN)
+        console.log(process.env.CORS_ORIGIN)
 
     })
 })
