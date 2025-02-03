@@ -7,10 +7,10 @@
     "engines": {
         "node": "16.x"
     },
-    "scripts": {
-        "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
-        
-    },
+   "scripts": {
+  "start": "node -r dotenv/config --experimental-json-modules src/index.js",
+  "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+},
     "keywords": [
         "javascript",
         "backend",
