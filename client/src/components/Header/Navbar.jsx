@@ -78,8 +78,8 @@ function Navbar() {
                     </div>
                 ) : (
                     <div className="space-x-2 sm:block hidden">
-                        <Link to={"/login"}>
-                            <Button className="bg-[#222222] border hover:bg-black border-slate-500 sm:px-4 sm:py-2 p-2">
+                        <Link to={"/login"} className="login">
+                            <Button className="bg-[#222222] border hover:bg-black border-slate-500 sm:px-4 sm:py-2 p-2 Login">
                                 Login
                             </Button>
                         </Link>

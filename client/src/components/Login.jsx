@@ -50,6 +50,9 @@ function Login() {
                             label="Username / email : "
                             type="text"
                             placeholder="example@gmail.com"
+                            className="username"
+                            id="username"  // Adding ID
+                            name="username" // Adding name
                             {...register("username", {
                                 required: "username is required",
                             })}
@@ -62,19 +65,26 @@ function Login() {
                         <Input
                             label="Password: "
                             type="password"
+                            className="password"
                             placeholder="1kd074fjw0"
+                            id="password"  // Adding ID
+                            name="password" // Adding name
                             {...register("password", {
                                 required: "password is required",
                             })}
                         />
                         {errors.password && (
-                            <span>{errors.password.message}</span>
+                            <span className="text-red-500">
+                                {errors.password.message}
+                            </span>
                         )}
 
                         <Button
                             type="submit"
                             bgColor="bg-purple-500"
-                            className="w-full sm:py-3 py-2 hover:bg-purple-700 text-lg"
+                            className="w-full sm:py-3 py-2 hover:bg-purple-700 text-lg loginButton"
+                            id="loginButton" // Adding ID
+                            name="loginButton" // Adding name\
                         >
                             Login
                         </Button>
