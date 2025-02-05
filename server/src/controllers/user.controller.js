@@ -6,23 +6,32 @@ import ApiResponse from "../utils/ApiResponse.js"
 import JWT from "jsonwebtoken"
 import mongoose from 'mongoose'
 
-const generateAccessAndRefreshToken = async(userId) => {
-    
+const generateAccessAndRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId);
-        console.log(userID);
+        console.log("User Found:", user);  // Log user details
         
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
+        
+        // Ensure tokens are created
+        
 
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
+
         return { accessToken, refreshToken };
+        
+
+      
     } catch (error) {
+        console.error("❌ Token Generation Failed:", error.message);
         throw new ApiError(500, "Something went wrong while generating refresh and access token.");
     }
+   
 };
+
 
 const registerUser = asyncHandler( async(req, res) => {
     // get user details from frontend
@@ -94,59 +103,49 @@ const registerUser = asyncHandler( async(req, res) => {
 
 });
 
-const loginUser = asyncHandler(async(req, res) => {
-    // req body -> data
-    // username or email
-    // find the user
-    // password check
-    // access and refresh token
-    // send tokens in cookies
+const loginUser = asyncHandler(async (req, res) => {
+    try {
+        console.log("Login Request:", req.body); // Debugging log
 
-    const {email, username, password} = req.body;
+        const { email, username, password } = req.body;
+        if (!(username || email)) {
+            return res.status(400).json({ error: "Username or email is required." });
+        }
 
-    if (!(username || email)) {
-        throw new ApiError(400, "username or email is required.");
+        const user = await User.findOne({ $or: [{ email }, { username }] });
+        if (!user) {
+            return res.status(404).json({ error: "User does not exist." });
+        }
+
+        const isPasswordCorrect = await user.comparePassword(password);
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ error: "Invalid user credentials." });
+        }
+
+        // Debugging user data
+        console.log("User Found:", user._id);
+
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+
+        if (!accessToken || !refreshToken) {
+            throw new Error("Token generation failed");
+        }
+
+       
+
+        // Set cookies with tokens
+        res
+            .status(200)
+            .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "None" })
+            .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "None" })
+            .json({ user, accessToken, refreshToken, message: "Login successful!" });
+
+    } catch (error) {
+        console.error("🚨 Login Error:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-
-    const user = await User.findOne({
-        $or: [{ email }, { username }]
-    });
-
-    if (!user) {
-        throw new ApiError(404, "User doesnot exist.");
-    }
-
-    const isPasswordCorrect = await user.comparePassword(password);
-
-    if (!isPasswordCorrect) {
-        throw new ApiError(401, "Invalid user credentials.");
-    }
-
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-
-    const loggedInUser = await User.findById(user._id).select(" -password -refreshToken");
-
-    const options = {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None"
-    };
-
-    return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(
-                200,
-                {
-                    user: loggedInUser, accessToken, refreshToken
-                },
-                "User logged in successfully !!!."
-            )
-        );
-
 });
+
 
 const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(

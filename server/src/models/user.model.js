@@ -82,8 +82,10 @@ userSchema.methods = {
             }
         )
     },
-    generateRefreshToken: function(){
-        return jwt.sign(
+    
+    
+    generateRefreshToken: function() {
+        const token = jwt.sign(
             {
                 _id: this._id,
             },
@@ -91,8 +93,11 @@ userSchema.methods = {
             {
                 expiresIn: process.env.REFRESH_TOKEN_EXPIRY
             }
-        )
+        );
+        console.log("Refresh Token Generated:", token);  // Debugging log
+        return token;
     },
+    
 }
 
 export const User = model('User', userSchema)
